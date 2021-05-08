@@ -21,6 +21,7 @@ pub fn streenum(args: TokenStream, input: TokenStream) -> TokenStream {
 
     // Parse and modify source
     let mut ast: ItemEnum = syn::parse(input).expect("streenum` only works on enums");
+    streenum.enum_name = Some(ast.ident.clone());
     streenum.visit_item_enum_mut(&mut ast);
     streenum.append_impls(&mut ast);
     ast.into_token_stream().into()
@@ -59,6 +60,7 @@ impl Streenum {
 
             }
         );
+
         // let code = format!("impl {}{{}}", self.enum_name.unwrap());
         // let proc_macro_token_stream: proc_macro::TokenStream = code.parse().unwrap();
         // let proc_macro2_token_stream: proc_macro2::TokenStream = proc_macro_token_stream.into();
@@ -78,7 +80,7 @@ impl Streenum {
         // //     items: vec![],
         // // };
         // // my_impls.to_tokens(&mut tokens);
-        // tokens.append(proc_macro_token_tree);
+        tokens.append_all(code.into_iter())
     }
 }
 
