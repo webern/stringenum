@@ -1,6 +1,7 @@
 use darling::FromMeta;
 use proc_macro::TokenStream;
 use proc_macro2::Ident;
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::visit_mut::VisitMut;
 use syn::{
@@ -23,8 +24,9 @@ pub fn streenum(args: TokenStream, input: TokenStream) -> TokenStream {
     let mut ast: ItemEnum = syn::parse(input).expect("streenum` only works on enums");
     streenum.enum_name = Some(ast.ident.clone());
     streenum.visit_item_enum_mut(&mut ast);
-    streenum.append_impls(&mut ast);
-    ast.into_token_stream().into()
+    let mut ast2: TokenStream2 = ast.to_token_stream().into();
+    streenum.append_impls(&mut ast2);
+    ast2.into_token_stream().into()
 }
 
 /// Stores the user's requested options
@@ -52,12 +54,33 @@ impl Streenum {
         }
     }
 
-    fn append_impls(&self, ast: &mut ItemEnum) {
-        let mut tokens = ast.into_token_stream();
+    fn append_impls(&self, ast: &mut TokenStream2) {
+        // let mut tokens = ast.into_token_stream();
         let enum_name = self.enum_name.as_ref().unwrap();
+        let variant_name = self.variants.iter().map(|v| v.to_string());
+        let variant_ident = self.variants.iter();
+
+        let variant_name2 = self.variants.iter().map(|v| v.to_string());
+        let variant_ident2 = self.variants.iter();
+        // #(#variants),*
         let code = quote!(
             impl #enum_name {
+                pub const fn as_str(&self) -> &'static str {
+                    match &self {
+                        #( #enum_name::#variant_ident => #variant_name, )*
+                    }
+                }
+            }
 
+            impl std::str::FromStr for Foo {
+                type Err = &'static str;
+
+                fn from_str(s: &str) -> Result<Self, Self::Err> {
+                    match s {
+                        #( #variant_name2 => Ok(#enum_name::#variant_ident2),)*
+                        _ => Err("unrecognized variant name"),
+                    }
+                }
             }
         );
 
@@ -80,7 +103,7 @@ impl Streenum {
         // //     items: vec![],
         // // };
         // // my_impls.to_tokens(&mut tokens);
-        tokens.append_all(code.into_iter())
+        ast.append_all(code.into_iter())
     }
 }
 
