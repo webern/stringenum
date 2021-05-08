@@ -1,0 +1,15 @@
+[package]
+name = "streenum"
+version = "0.1.0"
+authors = ["Matt Briggs <matthew.james.briggs@gmail.com>"]
+edition = "2018"
+
+[lib]
+path = "src/lib.rs"
+proc-macro = true
+
+[dependencies]
+darling = "0.12"
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = { version = "1.0", default-features = false, features = ["full", "parsing", "printing", "proc-macro", "visit-mut"] }
