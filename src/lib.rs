@@ -4,17 +4,14 @@ use proc_macro2::Ident;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::visit_mut::VisitMut;
-use syn::{
-    parse_macro_input, visit_mut, Attribute, AttributeArgs, ItemEnum, ItemImpl, Path, Type,
-    TypePath, Variant,
-};
+use syn::{parse_macro_input, visit_mut, AttributeArgs, ItemEnum, Variant};
 
 /// Define a `#[model]` attribute that can be placed on structs to be used in an API model.
 /// Model requirements are automatically applied to the struct and its fields.
 /// (The attribute must be placed on sub-structs; it can't be recursively applied to structs
 /// referenced in the given struct.)
 #[proc_macro_attribute]
-pub fn streenum(args: TokenStream, input: TokenStream) -> TokenStream {
+pub fn stringenum(args: TokenStream, input: TokenStream) -> TokenStream {
     // Parse args
     let attr_args = parse_macro_input!(args as AttributeArgs);
     let macro_args = Args::from_list(&attr_args).expect("Unknown args in `streenum` macro");
@@ -72,7 +69,7 @@ impl Streenum {
                 }
             }
 
-            impl std::str::FromStr for Foo {
+            impl std::str::FromStr for #enum_name {
                 type Err = &'static str;
 
                 fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -82,27 +79,58 @@ impl Streenum {
                     }
                 }
             }
+
+            impl AsRef<str> for #enum_name {
+                fn as_ref(&self) -> &str {
+                    self.as_str()
+                }
+            }
+
+            impl std::ops::Deref for #enum_name {
+                type Target = str;
+
+                fn deref(&self) -> &Self::Target {
+                    self.as_str()
+                }
+            }
+
+            impl std::fmt::Display for #enum_name {
+                fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    std::fmt::Display::fmt(self.as_str(), f)
+                }
+            }
+
+            impl std::borrow::Borrow<str> for #enum_name {
+                fn borrow(&self) -> &str {
+                    self.as_str()
+                }
+            }
+
+            impl From<#enum_name> for String {
+                fn from(x: #enum_name) -> Self {
+                    x.as_ref().to_owned()
+                }
+            }
+
+            impl PartialEq<str> for #enum_name {
+                fn eq(&self, other: &str) -> bool {
+                    self.as_ref() == other
+                }
+            }
+
+            impl PartialEq<String> for #enum_name {
+                fn eq(&self, other: &String) -> bool {
+                    self.as_ref() == other.as_str()
+                }
+            }
+
+            impl PartialEq<&str> for #enum_name {
+                fn eq(&self, other: &&str) -> bool {
+                    &(self.as_ref()) == other
+                }
+            }
         );
 
-        // let code = format!("impl {}{{}}", self.enum_name.unwrap());
-        // let proc_macro_token_stream: proc_macro::TokenStream = code.parse().unwrap();
-        // let proc_macro2_token_stream: proc_macro2::TokenStream = proc_macro_token_stream.into();
-        // let proc_macro_token_tree: proc_macro2::TokenTree = code.parse().unwrap();
-        // // let mut my_impls = ItemImpl {
-        // //     attrs: vec![],
-        // //     defaultness: None,
-        // //     unsafety: None,
-        // //     impl_token: syn::token::Impl::default(),
-        // //     generics: Default::default(),
-        // //     trait_: None,
-        // //     self_ty: Box::new(Type::Path(TypePath {
-        // //         qself: None,
-        // //         path: Path::from(self.enum_name.as_ref().unwrap()),
-        // //     })),
-        // //     brace_token: Default::default(),
-        // //     items: vec![],
-        // // };
-        // // my_impls.to_tokens(&mut tokens);
         ast.append_all(code.into_iter())
     }
 }

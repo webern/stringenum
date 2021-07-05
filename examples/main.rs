@@ -1,7 +1,7 @@
 use std::str::FromStr;
-use streenum::streenum;
+use stringenum::stringenum;
 
-#[streenum]
+#[stringenum]
 #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Debug)]
 enum Foo {
     Bar,
