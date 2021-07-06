@@ -6,6 +6,25 @@ use quote::{quote, ToTokens, TokenStreamExt};
 // use syn::visit_mut::VisitMut;
 use syn::{parse_macro_input, AttrStyle, Attribute, Data, DeriveInput, Lit, MetaNameValue};
 
+/// # Description
+///
+/// A derive macro that creates `const &'static str` representations of enum variants.
+///
+/// # Example
+///
+/// ```
+/// use stringenum::StringEnum;
+///
+/// #[derive(StringEnum)]
+/// enum Color {
+///     Red,
+///     #[stringenum(rename="plum")]
+///     Purple,
+/// }
+///
+/// assert_eq!("plum", Color::Purple);
+/// assert_eq!("Red", Color::Red);
+/// ```
 #[proc_macro_derive(StringEnum, attributes(stringenum))]
 pub fn stringenum(input: TokenStream) -> TokenStream {
     // Parse the input tokens
