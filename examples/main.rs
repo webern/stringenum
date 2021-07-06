@@ -1,16 +1,16 @@
 use std::str::FromStr;
-use stringenum::stringenum;
+use stringenum::StringEnum;
 
-#[stringenum]
-#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Debug)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Copy, Debug, StringEnum)]
 enum Foo {
     Bar,
     Baz,
-    #[rename("Bones the Cat")]
+    #[stringenum(rename = "Bones the Cat")]
     Cat,
 }
 
 const BAZ_STR_CONST: &str = Foo::Baz.as_str();
+const BONES_THE_CAT: &str = Foo::Cat.as_str();
 
 fn main() {
     let bar = Foo::from_str("Bar").unwrap();
@@ -23,4 +23,6 @@ fn main() {
     assert_eq!("Baz", baz_str);
     assert_eq!("Baz", BAZ_STR_CONST);
     assert_eq!(Foo::Baz, "Baz");
+    assert_eq!("Bones the Cat", Foo::Cat);
+    assert_eq!(BONES_THE_CAT.to_string(), Foo::Cat);
 }
