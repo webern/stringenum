@@ -6,10 +6,6 @@ use quote::{quote, ToTokens, TokenStreamExt};
 use syn::visit_mut::VisitMut;
 use syn::{parse_macro_input, visit_mut, AttributeArgs, ItemEnum, Variant};
 
-/// Define a `#[model]` attribute that can be placed on structs to be used in an API model.
-/// Model requirements are automatically applied to the struct and its fields.
-/// (The attribute must be placed on sub-structs; it can't be recursively applied to structs
-/// referenced in the given struct.)
 #[proc_macro_attribute]
 pub fn stringenum(args: TokenStream, input: TokenStream) -> TokenStream {
     // Parse args

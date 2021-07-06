@@ -6,6 +6,8 @@ use stringenum::stringenum;
 enum Foo {
     Bar,
     Baz,
+    #[rename("Bones the Cat")]
+    Cat,
 }
 
 const BAZ_STR_CONST: &str = Foo::Baz.as_str();
@@ -20,4 +22,5 @@ fn main() {
     let baz_str: &'static str = Foo::Baz.as_str();
     assert_eq!("Baz", baz_str);
     assert_eq!("Baz", BAZ_STR_CONST);
+    assert_eq!(Foo::Baz, "Baz");
 }
