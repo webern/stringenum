@@ -90,7 +90,7 @@ impl Strenum {
             impl std::str::FromStr for #enum_name {
                 type Err = &'static str;
 
-                fn from_str(s: &str) -> Result<Self, Self::Err> {
+                fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
                     match s {
                         #( #variant_name2 => Ok(#enum_name::#variant_ident2),)*
                         _ => Err("unrecognized variant name"),
@@ -124,7 +124,7 @@ impl Strenum {
                 }
             }
 
-            impl From<#enum_name> for String {
+            impl From<#enum_name> for std::string::String {
                 fn from(x: #enum_name) -> Self {
                     x.as_ref().to_owned()
                 }
@@ -136,8 +136,8 @@ impl Strenum {
                 }
             }
 
-            impl PartialEq<String> for #enum_name {
-                fn eq(&self, other: &String) -> bool {
+            impl PartialEq<std::string::String> for #enum_name {
+                fn eq(&self, other: &std::string::String) -> bool {
                     self.as_ref() == other.as_str()
                 }
             }
@@ -154,7 +154,7 @@ impl Strenum {
                 }
             }
 
-            impl PartialEq<#enum_name> for String {
+            impl PartialEq<#enum_name> for std::string::String {
                 fn eq(&self, other: &#enum_name) -> bool {
                     self.as_str() == other.as_str()
                 }
@@ -172,7 +172,7 @@ impl Strenum {
 }
 
 /// Check all of the attributes to find a `stringenum(rename = "...")` if it exists.
-fn find_rename_value(attrs: &[Attribute]) -> Option<String> {
+fn find_rename_value(attrs: &[Attribute]) -> std::option::Option<std::string::String> {
     for a in attrs {
         let maybe_rename = get_rename_value(a);
         if maybe_rename.is_some() {
@@ -183,7 +183,7 @@ fn find_rename_value(attrs: &[Attribute]) -> Option<String> {
 }
 
 /// Check an attribute to see if it is a `stringenum(rename = "...")` construct.
-fn get_rename_value(a: &Attribute) -> Option<String> {
+fn get_rename_value(a: &Attribute) -> std::option::Option<std::string::String> {
     if !matches!(a.style, AttrStyle::Outer)
         || a.path.segments.len() != 1
         || a.path.segments.first().unwrap().ident.to_string() != "stringenum"
